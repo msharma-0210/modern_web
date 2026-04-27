@@ -1,41 +1,104 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Styled Page</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Website Generator</title>
 
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="bg-gradient-to-br from-blue-100 via-white to-purple-100 min-h-screen flex items-center justify-center">
+<body class="bg-gradient-to-br from-blue-100 via-white to-purple-100 min-h-screen flex items-center justify-center p-5">
 
-  <div class="bg-white shadow-2xl rounded-2xl p-10 w-[90%] max-w-md text-center">
-    
-    <h1 class="text-4xl font-bold text-gray-800 mb-4">
-      Welcome 🚀
+<div class="bg-white shadow-2xl rounded-2xl p-8 w-full max-w-2xl">
+
+    <h1 class="text-4xl font-bold text-center text-gray-800 mb-4">
+        AI Webpage Generator 🚀
     </h1>
 
-    <p class="text-gray-600 mb-8">
-      Beautifully designed page using Tailwind CSS.
+    <p class="text-center text-gray-500 mb-6">
+        Enter your prompt and generate beautiful HTML pages using Gemini AI.
     </p>
 
-    <div class="space-y-4">
-      <button class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 rounded-xl transition duration-300 shadow-md">
-        Get Started
-      </button>
+    <!-- Input -->
+    <textarea 
+        id="prompt"
+        placeholder="Example: Portfolio website for developer..."
+        class="w-full h-32 p-4 border rounded-xl outline-none focus:ring-2 focus:ring-blue-400 resize-none mb-4"
+    ></textarea>
 
-      <button class="w-full bg-purple-500 hover:bg-purple-600 text-white font-semibold py-3 rounded-xl transition duration-300 shadow-md">
-        Learn More
-      </button>
+    <!-- Button -->
+    <button 
+        onclick="generate()"
+        class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 rounded-xl transition duration-300 shadow-md mb-6"
+    >
+        Generate Website
+    </button>
 
-      <button class="w-full border-2 border-gray-300 hover:bg-gray-100 text-gray-700 font-semibold py-3 rounded-xl transition duration-300">
-        Contact Us
-      </button>
+    <!-- Result -->
+    <div class="bg-gray-100 rounded-xl p-4">
+        <h2 class="text-lg font-semibold mb-2 text-gray-700">Generated Code:</h2>
+        <pre id="result" class="whitespace-pre-wrap text-sm text-gray-800 overflow-auto max-h-96"></pre>
     </div>
 
-  </div>
+</div>
+
+<script>
+const api_key = "AIzaSyBeAvvWfgXht48_zW6bGDieh5t0nLQhJAY";
+
+async function generate() {
+    const prompt = document.getElementById("prompt").value;
+
+    if (!prompt) {
+        alert("Please enter prompt");
+        return;
+    }
+
+    document.getElementById("result").textContent = "Generating...";
+
+    const fullPrompt = `
+Generate HTML code with inline CSS for webpage on "${prompt}"
+
+Rules:
+- Output only HTML
+- Include <html>, <head>, <body>
+- Modern design
+- Responsive layout
+`;
+
+    try {
+        const res = await fetch(
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-goog-api-key": api_key
+                },
+                body: JSON.stringify({
+                    contents: [
+                        {
+                            parts: [
+                                { text: fullPrompt }
+                            ]
+                        }
+                    ]
+                })
+            }
+        );
+
+        const data = await res.json();
+
+        const output = data.candidates[0].content.parts[0].text;
+
+        document.getElementById("result").textContent = output;
+
+    } catch (error) {
+        document.getElementById("result").textContent = "Error generating code.";
+        console.error(error);
+    }
+}
+</script>
 
 </body>
 </html>
